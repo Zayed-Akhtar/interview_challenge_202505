@@ -16,13 +16,12 @@ export async function getNoteById(id: number): Promise<Note | null> {
 
 export async function getNotesByUserId(
   userId: number,
-  { limit = 10 }: { limit?: number } = {}
+  { limit }: { limit?: number } = {}
 ): Promise<{ notes: Note[] }> {
   const notesList = await db
     .select()
     .from(notes)
-    .where(sql`${notes.userId} = ${userId}`)
-    .limit(limit);
+    .where(sql`${notes.userId} = ${userId}`);
 
   return {
     notes: notesList,
