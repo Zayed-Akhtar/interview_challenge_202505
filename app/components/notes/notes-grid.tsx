@@ -1,5 +1,6 @@
 import { type Note } from "~/db/schema";
 import { NoteCard } from "./note-card";
+import NotesList from "./notes-list";
 
 type SerializedNote = Omit<Note, "createdAt"> & { createdAt: string };
 

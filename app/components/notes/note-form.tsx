@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Form, useActionData, useNavigation } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -20,13 +20,21 @@ export function NoteForm({ defaultValues = {}, onSuccess }: NoteFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
 
   const isSubmitting = navigation.state === "submitting";
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+
+  useEffect(()=>{
+    if(navigation.state === 'submitting'){
+      setHasSubmitted(true);
+    }
+  }, [navigation.state])
 
   useEffect(() => {
-    if (actionData?.success) {
+    if (hasSubmitted && actionData?.success) {
       formRef.current?.reset();
       onSuccess?.();
+      setHasSubmitted(false);
     }
-  }, [actionData?.success, onSuccess]);
+  }, [actionData?.success, hasSubmitted, onSuccess]);
 
   return (
     <Form ref={formRef} method="post" className="space-y-4">
