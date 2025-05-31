@@ -8,7 +8,7 @@ const RELATIVE_FORMATTER = new Intl.RelativeTimeFormat("en-US", {
 });
 
 /**
- * Format a date to a readable string (e.g., "Jan 15, 2024, 3:30 PM")
+ * Format a date to a readable string (e.g., "Jan 15, 2024, 3:30 PM").
  */
 export function formatDate(date: Date | string): string {
   const dateObj = typeof date === "string" ? new Date(date) : date;
@@ -16,30 +16,40 @@ export function formatDate(date: Date | string): string {
 }
 
 /**
- * Format a date to a relative string (e.g., "2 days ago", "just now")
+ * Format a date to a relative string (e.g., "2 days ago", "just now").
  */
 export function formatRelativeTime(date: Date | string): string {
   const dateObj = typeof date === "string" ? new Date(date) : date;
   const now = new Date();
-  const diffInSeconds = Math.floor((dateObj.getTime() - now.getTime()) / 1000);
-  const diffInMinutes = Math.floor(diffInSeconds / 60);
-  const diffInHours = Math.floor(diffInMinutes / 60);
-  const diffInDays = Math.floor(diffInHours / 24);
 
-  if (Math.abs(diffInDays) > 30) {
+  // 1) Calculate total difference in seconds (always positive for past dates).
+  const deltaSeconds = Math.floor((now.getTime() - dateObj.getTime()) / 1000);
+  // If the date is in the future, treat it as “just now.”
+  if (deltaSeconds < 0) {
+    return "just now";
+  }
+
+  // 2) If it’s more than 30 days old, just return the full date.
+  const secondsPerDay = 60 * 60 * 24;
+  if (deltaSeconds > 30 * secondsPerDay) {
     return formatDate(dateObj);
   }
 
-  if (Math.abs(diffInDays) > 0) {
-    return RELATIVE_FORMATTER.format(diffInDays, "day");
+  const deltaDays    = Math.floor(deltaSeconds / secondsPerDay);
+  const deltaHours   = Math.floor(deltaSeconds / 3600);
+  const deltaMinutes = Math.floor(deltaSeconds / 60);
+
+  if (deltaDays > 0) {
+    // Pass a negative number so Intl.RelativeTimeFormat knows it's "in the past"
+    return RELATIVE_FORMATTER.format(-deltaDays, "day");
   }
 
-  if (Math.abs(diffInHours) > 0) {
-    return RELATIVE_FORMATTER.format(diffInHours, "hour");
+  if (deltaHours > 0) {
+    return RELATIVE_FORMATTER.format(-deltaHours, "hour");
   }
 
-  if (Math.abs(diffInMinutes) > 0) {
-    return RELATIVE_FORMATTER.format(diffInMinutes, "minute");
+  if (deltaMinutes > 0) {
+    return RELATIVE_FORMATTER.format(-deltaMinutes, "minute");
   }
 
   return "just now";
