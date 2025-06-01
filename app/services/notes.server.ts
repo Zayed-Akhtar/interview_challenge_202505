@@ -14,6 +14,15 @@ export async function getNoteByIdandUserId(id: number, userId:number): Promise<N
   return note || null;
 }
 
+export async function updateNoteFavourite(noteId: number, isFavourite :boolean): Promise<Note | null> {
+  const [updated] = await db
+    .update(notes)
+    .set({ isFavourite })
+    .where(sql`${notes.id} = ${noteId}`)
+    .returning();
+  return updated;
+}
+
 export async function getNotesByUserId(
   userId: number,
   { limit }: { limit?: number } = {}
@@ -21,7 +30,8 @@ export async function getNotesByUserId(
   const notesList = await db
     .select()
     .from(notes)
-    .where(sql`${notes.userId} = ${userId}`);
+    .where(sql`${notes.userId} = ${userId}`)
+    .orderBy(sql`${notes.isFavourite} DESC`, sql`${notes.createdAt} DESC`);
 
   return {
     notes: notesList,
