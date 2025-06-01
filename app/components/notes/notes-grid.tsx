@@ -22,10 +22,8 @@ export function NotesGrid({
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {notes.map((note) => (
-        <NoteCard key={note.id} note={note} />
-      ))}
+    <div className="max-w-screen-xl mx-auto px-4">
+      <NotesList notes={notes} itemsPerPage={10}/>
     </div>
   );
 }
